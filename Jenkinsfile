@@ -14,7 +14,7 @@ pipeline {
 
         stage ("Git Checkout") {
             steps {
-                git branch: 'main', url: 'https://github.com/Paradox2001/Api-sinistre.git'
+                git branch: 'master', url: 'https://github.com/Paradox2001/Api-sinistre.git'
             }
         }
 
@@ -22,7 +22,7 @@ pipeline {
             steps {
                 withSonarQubeEnv('sonar-server') { 
                     dir('api-sinistre') {
-                          sh "ls -l"
+                          
     sh "mvn clean verify sonar:sonar -Dsonar.projectKey=axa_sinistre -Dsonar.projectName=axa_sinistre"
 }
 
