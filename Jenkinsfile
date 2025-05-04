@@ -71,17 +71,25 @@ pipeline {
             }
         }
 
+
         stage("Docker Scout Scan") {
-            steps {
-                script {
-                    withDockerRegistry(credentialsId: 'dockercred') {
-                        sh 'docker-scout quickview zakariahmimssa/axa_sinistre:latest'
-                        sh 'docker-scout cves zakariahmimssa/axa_sinistre:latest'
-                        sh 'docker-scout recommendations zakariahmimssa/axa_sinistre:latest'
-                    }
-                }
-            }
+    steps {
+        withCredentials([usernamePassword(credentialsId: 'dockercred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+            sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
+            sh 'docker-scout quickview zakariahmimssa/axa_sinistre:latest'
+            sh 'docker-scout cves zakariahmimssa/axa_sinistre:latest'
+            sh 'docker-scout recommendations zakariahmimssa/axa_sinistre:latest'
         }
+    }
+}
+
+
+       
+
+
+
+
+        
 
         stage("Déploiement local avec Docker") {
             steps {
