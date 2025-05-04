@@ -22,6 +22,7 @@ pipeline {
             steps {
                 withSonarQubeEnv('sonar-server') { 
                     dir('api-sinistre') {
+                          sh "ls -l"
     sh "mvn clean verify sonar:sonar -Dsonar.projectKey=axa_sinistre -Dsonar.projectName=axa_sinistre"
 }
 
