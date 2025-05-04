@@ -21,7 +21,13 @@ pipeline {
         stage("Analyse SonarQube") {
             steps {
                 withSonarQubeEnv('sonar-server') { 
-                    sh "mvn clean verify sonar:sonar -Dsonar.projectKey=axa_sinistre -Dsonar.projectName=axa_sinistre" 
+                    dir('api-sinistre') {
+    sh "mvn clean verify sonar:sonar -Dsonar.projectKey=axa_sinistre -Dsonar.projectName=axa_sinistre"
+}
+
+
+
+                    
                 }
             }
         }
