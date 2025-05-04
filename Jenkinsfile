@@ -94,7 +94,7 @@ pipeline {
 
         stage("Déploiement local avec Docker") {
             steps {
-                sh "docker run -d --name axa_sinistre -p 8082:8080 tondockerhub/axa_sinistre:latest" 
+                sh "docker run -d --name axa_sinistre -p 8082:8080 zakariahmimssa/axa_sinistre:latest" 
             }
         }
     }
