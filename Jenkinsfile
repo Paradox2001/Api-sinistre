@@ -63,7 +63,7 @@ pipeline {
         stage("Push Image to DockerHub") {
             steps {
                 script {
-                    withDockerRegistry(credentialsId: 'docker') { 
+                    withDockerRegistry(credentialsId: 'dockercred') { 
                         sh "docker tag axa_sinistre zakariahmimssa/axa_sinistre:latest" 
                         sh "docker push zakariahmimssa/axa_sinistre:latest"  
                     }
@@ -74,7 +74,7 @@ pipeline {
         stage("Docker Scout Scan") {
             steps {
                 script {
-                    withDockerRegistry(credentialsId: 'docker') {
+                    withDockerRegistry(credentialsId: 'dockercred') {
                         sh 'docker-scout quickview zakariahmimssa/axa_sinistre:latest'
                         sh 'docker-scout cves zakariahmimssa/axa_sinistre:latest'
                         sh 'docker-scout recommendations zakariahmimssa/axa_sinistre:latest'
