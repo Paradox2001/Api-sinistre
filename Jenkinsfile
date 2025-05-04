@@ -56,7 +56,7 @@ pipeline {
 
         stage("Build Docker Image") {
             steps {
-                sh "docker build -t axa_sinistre ." // 
+                sh "docker build -t axa_sinistre ./api-sinistre" // 
             }
         }
 
