@@ -1,7 +1,9 @@
 pipeline {
     agent any
     environment {
-        SCANNER_HOME = tool 'sonar-scanner'                          
+        SCANNER_HOME = tool 'sonar-scanner'
+        MAVEN_HOME = tool 'maven3' // doit matcher le nom défini dans Jenkins
+        PATH = "${MAVEN_HOME}/bin:${env.PATH}"
     }
     stages {
         stage ("Clean workspace") {
