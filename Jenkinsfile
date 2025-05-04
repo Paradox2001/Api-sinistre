@@ -72,9 +72,9 @@ pipeline {
         }
 
 
-        stage("Docker Scout Scan") {
+     stage("Docker Scout Scan") {
     steps {
-        withCredentials([usernamePassword(credentialsId: 'dockercred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+        withCredentials([usernamePassword(credentialsId: 'scout-token', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
             sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
             sh 'docker-scout quickview zakariahmimssa/axa_sinistre:latest'
             sh 'docker-scout cves zakariahmimssa/axa_sinistre:latest'
@@ -82,6 +82,7 @@ pipeline {
         }
     }
 }
+
 
 
        
