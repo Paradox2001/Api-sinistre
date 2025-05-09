@@ -42,7 +42,7 @@ pipeline {
                 withSonarQubeEnv('sonar-server') {
                     dir('api-sinistre') {
                         sh """
-                        mvn sonar:sonar \
+                        mvn clean verify sonar:sonar \
                         -Dsonar.projectKey=axa_sinistre \
                         -Dsonar.projectName=axa_sinistre \
                         -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
