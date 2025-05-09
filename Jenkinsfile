@@ -1,34 +1,53 @@
 pipeline {
     agent any
+
     environment {
         SCANNER_HOME = tool 'sonar-scanner'
-        MAVEN_HOME = tool 'maven3' // doit matcher le nom défini dans Jenkins
+        MAVEN_HOME = tool 'maven3' // Remplace par le nom exact défini dans Jenkins
         PATH = "${MAVEN_HOME}/bin:${env.PATH}"
     }
+
     stages {
-        stage ("Clean workspace") {
+
+        stage("Clean Workspace") {
             steps {
                 cleanWs()
             }
         }
 
-        stage ("Git Checkout") {
+        stage("Git Checkout") {
             steps {
                 git branch: 'master', url: 'https://github.com/Paradox2001/Api-sinistre.git'
             }
         }
 
+        stage("Tests Unitaires") {
+            steps {
+                dir('api-sinistre') {
+                    sh 'mvn test'
+                }
+            }
+        }
+
+        stage("Génération du rapport de couverture") {
+            steps {
+                dir('api-sinistre') {
+                    sh 'mvn jacoco:report'
+                }
+            }
+        }
+
         stage("Analyse SonarQube") {
             steps {
-                withSonarQubeEnv('sonar-server') { 
+                withSonarQubeEnv('sonar-server') {
                     dir('api-sinistre') {
-                          
-    sh "mvn clean verify sonar:sonar -Dsonar.projectKey=axa_sinistre -Dsonar.projectName=axa_sinistre"
-}
-
-
-
-                    
+                        sh """
+                        mvn sonar:sonar \
+                        -Dsonar.projectKey=axa_sinistre \
+                        -Dsonar.projectName=axa_sinistre \
+                        -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+                        """
+                    }
                 }
             }
         }
@@ -36,65 +55,55 @@ pipeline {
         stage("Vérification Quality Gate") {
             steps {
                 script {
-                    waitForQualityGate abortPipeline: true 
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
 
         stage("OWASP Dependency Check") {
             steps {
-                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check' // 🔁 Doit exister dans Jenkins Tools
+                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
                 dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
             }
         }
 
-        stage("Trivy Scan") {
+        stage("Scan Trivy") {
             steps {
-                sh "trivy fs . > trivy.txt"     
+                sh "trivy fs . > trivy.txt"
             }
         }
 
         stage("Build Docker Image") {
             steps {
-                sh "docker build -t axa_sinistre ./api-sinistre" // 
+                sh "docker build -t axa_sinistre ./api-sinistre"
             }
         }
 
-        stage("Push Image to DockerHub") {
+        stage("Push vers DockerHub") {
             steps {
                 script {
-                    withDockerRegistry(credentialsId: 'dockercred') { 
-                        sh "docker tag axa_sinistre zakariahmimssa/axa_sinistre:latest" 
-                        sh "docker push zakariahmimssa/axa_sinistre:latest"  
+                    withDockerRegistry(credentialsId: 'dockercred') {
+                        sh "docker tag axa_sinistre zakariahmimssa/axa_sinistre:latest"
+                        sh "docker push zakariahmimssa/axa_sinistre:latest"
                     }
                 }
             }
         }
 
-
-     stage("Docker Scout Scan") {
-    steps {
-        withCredentials([usernamePassword(credentialsId: 'scout-token', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-            sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
-            sh 'docker-scout quickview zakariahmimssa/axa_sinistre:latest'
-            sh 'docker-scout cves zakariahmimssa/axa_sinistre:latest'
-            sh 'docker-scout recommendations zakariahmimssa/axa_sinistre:latest'
+        stage("Docker Scout Scan") {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'scout-token', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
+                    sh 'docker-scout quickview zakariahmimssa/axa_sinistre:latest'
+                    sh 'docker-scout cves zakariahmimssa/axa_sinistre:latest'
+                    sh 'docker-scout recommendations zakariahmimssa/axa_sinistre:latest'
+                }
+            }
         }
-    }
-}
-
-
-
-       
-
-
-
-
-        
 
         stage("Déploiement local avec Docker") {
             steps {
-                sh "docker run -d --name axa_sinistre -p 8082:8080 zakariahmimssa/axa_sinistre:latest" 
+                sh "docker run -d --name axa_sinistre -p 8082:8080 zakariahmimssa/axa_sinistre:latest"
             }
         }
     }
@@ -116,7 +125,7 @@ pipeline {
                     </body>
                     </html>
                 """,
-                to: 'hmimssazakaria@gmail.com;',
+                to: 'hmimssazakaria@gmail.com',
                 mimeType: 'text/html',
                 attachmentsPattern: 'trivy.txt'
         }
