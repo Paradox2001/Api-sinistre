@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: axa_sinistre
+  labels:
+    app: axa_sinistre
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+    targetPort: 8080
+    nodePort: 31000
+  selector:
+    app: axa_sinistre
