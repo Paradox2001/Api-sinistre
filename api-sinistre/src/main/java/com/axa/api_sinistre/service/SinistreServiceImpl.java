@@ -17,7 +17,7 @@ public class SinistreServiceImpl implements SinistreService {
     @Override
     @Transactional
     public Sinistre create(Sinistre sinistre) {
-        System.out.println("📥 Sinistre reçu : " + sinistre.getDescription() + " - " + sinistre.getType() + " - " + sinistre.getDate());
+        System.out.println(" Sinistre reçu : " + sinistre.getDescription() + " - " + sinistre.getType() + " - " + sinistre.getDate());
         return repository.save(sinistre);
     }
    
