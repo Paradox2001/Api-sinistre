@@ -1,1 +1,22 @@
 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: axa_sinistre
+  labels:
+    app: axa_sinistre
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: axa_sinistre
+  template:
+    metadata:
+      labels:
+        app: axa_sinistre
+    spec:
+      containers:
+      - name: axa_sinistre
+        image: zakariahmimssa/axa_sinistre:latest
+        ports:
+        - containerPort: 8080
