@@ -34,8 +34,8 @@ pipeline {
             steps {
                 script {
                     sh """
-                    git config user.email "cd-pipeline@axa.local"
-                    git config user.name "CD Pipeline"
+                    git config user.email "hmimssazakaria@gmail.com"
+                    git config user.name "Paradox2001"
                     git commit -am "Mise à jour du tag Docker vers ${IMAGETAG}"
                     git push https://${GIT_USERNAME}:${GIT_TOKEN}@github.com/Paradox2001/api-sinistre.git ${params.BRANCH}
                     """
