@@ -111,7 +111,7 @@ pipeline {
                 build job: 'app-cd', // ⬅️ Nom exact de ton job CD Jenkins
                 parameters: [
                     string(name: 'IMAGETAG', value: "${IMAGETAG}"),
-                    password(name: 'PASSWD', value: "${params.PASSWD}"),
+                    password(name: 'PASSWD', value: params.PASSWD),
                     choice(name: 'environment', value: 'release')
                 ]
             }
