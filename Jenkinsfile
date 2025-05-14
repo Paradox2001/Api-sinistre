@@ -9,7 +9,7 @@ pipeline {
 
     environment {
         REPO_URL = 'https://github.com/Paradox2001/api-sinistre.git'
-        DEPLOY_PATH = 'kubernetes/deployment.yaml'
+        DEPLOY_PATH = 'kubernetes/deployment.yml'
         GIT_USERNAME = 'Paradox2001' // ⚠️ Remplace si différent
     }
 
