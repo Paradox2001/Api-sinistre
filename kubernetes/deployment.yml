@@ -17,6 +17,6 @@ spec:
     spec:
       containers:
       - name: axasinistre
-        image: zakariahmimssa/axa_sinistre:1
+        image: zakariahmimssa/axa_sinistre:latest
         ports:
         - containerPort: 8080
