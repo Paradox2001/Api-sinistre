@@ -4,7 +4,7 @@ pipeline {
     parameters {
         string(name: 'IMAGETAG', defaultValue: 'latest', description: 'Tag de l’image Docker à déployer')
         choice(name: 'BRANCH', choices: ['master', 'main'], description: 'Branche du dépôt')
-        password(name: 'GIT_TOKEN', defaultValue: '', description: 'Token GitHub ou mot de passe')
+        password(name: 'PASSWD', defaultValue: '', description: 'Token GitHub ou mot de passe')
     }
 
     environment {
