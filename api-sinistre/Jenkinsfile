@@ -50,6 +50,7 @@ pipeline {
                         mvn clean verify sonar:sonar \
                         -Dsonar.projectKey=axa_sinistre \
                         -Dsonar.projectName=axa_sinistre \
+                        -Dsonar.sources=src/main/java \
                         -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                         """
                     }
