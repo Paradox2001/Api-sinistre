@@ -5,7 +5,7 @@ pipeline {
         SCANNER_HOME = tool 'sonar-scanner'
         MAVEN_HOME = tool 'maven3'
         PATH = "${MAVEN_HOME}/bin:${env.PATH}"
-        IMAGETAG = "build-${env.BUILD_NUMBER}"  // ⬅️ Tag dynamique
+        IMAGETAG = "build-${env.BUILD_NUMBER}"  // ⬅ Tag dynamique
     }
 
     parameters {
@@ -107,7 +107,7 @@ pipeline {
 
         stage("Déclenchement du Pipeline CD") {
             steps {
-                build job: 'cd-pipeline', // ⬅️ Nom exact de ton job CD Jenkins
+                build job: 'app-cd', // ⬅️ Nom exact de ton job CD Jenkins
                 parameters: [
                     string(name: 'IMAGETAG', value: "${IMAGETAG}"),
                     password(name: 'PASSWD', value: "${params.PASSWD}"),
