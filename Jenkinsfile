@@ -4,13 +4,13 @@ pipeline {
     parameters {
         string(name: 'IMAGETAG', defaultValue: 'latest', description: 'Tag de l’image Docker à déployer')
         choice(name: 'BRANCH', choices: ['master', 'main'], description: 'Branche du dépôt')
-        password(name: 'GIT_TOKEN', defaultValue: '', description: 'Token GitHub ou mot de passe')
+        password(name: 'PASSWD', defaultValue: '', description: 'Token GitHub ou mot de passe') // ✅ nouveau nom
     }
 
     environment {
         REPO_URL = 'https://github.com/Paradox2001/api-sinistre.git'
         DEPLOY_PATH = 'kubernetes/deployment.yml'
-        GIT_USERNAME = 'Paradox2001' // ⚠️ Remplace si différent
+        GIT_USERNAME = 'Paradox2001'
     }
 
     stages {
@@ -24,7 +24,7 @@ pipeline {
             steps {
                 script {
                     sh """
-                    sed -i 's|image: zakariahmimssa/axa_sinistre:.*|image: zakariahmimssa/axa_sinistre:${IMAGETAG}|' ${DEPLOY_PATH}
+                    sed -i 's|image: zakariahmimssa/axa_sinistre:.*|image: zakariahmimssa/axa_sinistre:${params.IMAGETAG}|' ${DEPLOY_PATH}
                     """
                 }
             }
@@ -36,9 +36,8 @@ pipeline {
                     sh """
                     git config user.email "hmimssazakaria@gmail.com"
                     git config user.name "Paradox2001"
-                    git commit -am "Mise à jour du tag Docker vers ${IMAGETAG}"
-                    git push https://${GIT_USERNAME}:${params.GIT_TOKEN}@github.com/Paradox2001/Api-sinistre.git ${params.BRANCH}
-
+                    git commit -am "Mise à jour du tag Docker vers ${params.IMAGETAG}"
+                    git push https://${GIT_USERNAME}:${params.PASSWD}@github.com/Paradox2001/Api-sinistre.git ${params.BRANCH}
                     """
                 }
             }
