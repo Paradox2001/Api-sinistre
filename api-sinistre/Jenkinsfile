@@ -3,8 +3,13 @@ pipeline {
 
     environment {
         SCANNER_HOME = tool 'sonar-scanner'
-        MAVEN_HOME = tool 'maven3' // Remplace par le nom exact défini dans Jenkins
+        MAVEN_HOME = tool 'maven3'
         PATH = "${MAVEN_HOME}/bin:${env.PATH}"
+        IMAGETAG = "build-${env.BUILD_NUMBER}"  // ⬅️ Tag dynamique
+    }
+
+    parameters {
+        password(name: 'PASSWD', defaultValue: '', description: 'Mot de passe ou token GitHub pour le pipeline CD')
     }
 
     stages {
@@ -75,7 +80,7 @@ pipeline {
 
         stage("Build Docker Image") {
             steps {
-                sh "docker build -t axa_sinistre ./api-sinistre"
+                sh "docker build -t zakariahmimssa/axa_sinistre:${IMAGETAG} ./api-sinistre"
             }
         }
 
@@ -83,8 +88,7 @@ pipeline {
             steps {
                 script {
                     withDockerRegistry(credentialsId: 'dockercred') {
-                        sh "docker tag axa_sinistre zakariahmimssa/axa_sinistre:latest"
-                        sh "docker push zakariahmimssa/axa_sinistre:latest"
+                        sh "docker push zakariahmimssa/axa_sinistre:${IMAGETAG}"
                     }
                 }
             }
@@ -94,16 +98,21 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'scout-token', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
-                    sh 'docker-scout quickview zakariahmimssa/axa_sinistre:latest'
-                    sh 'docker-scout cves zakariahmimssa/axa_sinistre:latest'
-                    sh 'docker-scout recommendations zakariahmimssa/axa_sinistre:latest'
+                    sh "docker-scout quickview zakariahmimssa/axa_sinistre:${IMAGETAG}"
+                    sh "docker-scout cves zakariahmimssa/axa_sinistre:${IMAGETAG}"
+                    sh "docker-scout recommendations zakariahmimssa/axa_sinistre:${IMAGETAG}"
                 }
             }
         }
 
-        stage("Déploiement local avec Docker") {
+        stage("Déclenchement du Pipeline CD") {
             steps {
-                sh "docker run -d --name axa_sinistre -p 8082:8080 zakariahmimssa/axa_sinistre:latest"
+                build job: 'cd-pipeline', // ⬅️ Nom exact de ton job CD Jenkins
+                parameters: [
+                    string(name: 'IMAGETAG', value: "${IMAGETAG}"),
+                    password(name: 'PASSWD', value: "${params.PASSWD}"),
+                    choice(name: 'environment', value: 'release')
+                ]
             }
         }
     }
@@ -115,10 +124,11 @@ pipeline {
                 body: """
                     <html>
                     <body>
-                        <h3 style="color: #007ACC;">Pipeline DevSecOps terminé</h3>
+                        <h3 style="color: #007ACC;">Pipeline CI terminé</h3>
                         <ul>
                             <li><b>Projet :</b> ${env.JOB_NAME}</li>
                             <li><b>Build # :</b> ${env.BUILD_NUMBER}</li>
+                            <li><b>Tag image :</b> ${IMAGETAG}</li>
                             <li><b>URL :</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></li>
                         </ul>
                         <p>Voir le fichier Trivy joint pour les vulnérabilités.</p>
