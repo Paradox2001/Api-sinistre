@@ -112,7 +112,7 @@ pipeline {
                 parameters: [
                     string(name: 'IMAGETAG', value: "${IMAGETAG}"),
                     password(name: 'PASSWD', value: params.PASSWD),
-                    choice(name: 'environment', value: 'release')
+                    //choice(name: 'environment', value: 'release')
                 ]
             }
         }
