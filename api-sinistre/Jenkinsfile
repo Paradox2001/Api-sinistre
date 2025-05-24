@@ -113,7 +113,7 @@ pipeline {
          // Supprimer le conteneur s'il existe déjà
         sh "docker rm -f smokerun || true"
         sh "docker run -d --name smokerun -p 8081:8080 zakariahmimssa/axa_sinistre:${IMAGETAG}"
-        sh "sleep 30; curl -f http://localhost:8081/api/sinistres || (echo 'Health check failed'; exit 1)"
+        sh "sleep 60; curl -f http://localhost:8081/api/sinistres || (echo 'Health check failed'; exit 1)"
         sh "docker rm --force smokerun"
     }
 }
