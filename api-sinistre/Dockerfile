@@ -8,4 +8,4 @@ COPY target/*.jar app.jar
 ENTRYPOINT ["java", "-jar", "/app.jar"]
 
 # Port exposé
-EXPOSE 8080
+EXPOSE 80
