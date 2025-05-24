@@ -42,6 +42,13 @@ pipeline {
             }
         }
 
+          stage("OWASP Dependency Check") {
+            steps {
+                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
+                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+            }
+        }
+
         stage("Analyse SonarQube") {
             steps {
                 withSonarQubeEnv('sonar-server') {
@@ -66,25 +73,12 @@ pipeline {
             }
         }
 
-        stage("OWASP Dependency Check") {
-            steps {
-                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
-                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
-            }
-        }
-
-        stage("Scan Trivy") {
-            steps {
-                sh "trivy fs . > trivy.txt"
-            }
-        }
-
+      
         stage("Build Docker Image") {
             steps {
                 sh "docker build -t zakariahmimssa/axa_sinistre:${IMAGETAG} ./api-sinistre"
             }
-        }
-
+        } 
         stage("Push vers DockerHub") {
             steps {
                 script {
@@ -94,6 +88,13 @@ pipeline {
                 }
             }
         }
+
+
+          stage("Scan Trivy") {
+    steps {
+        sh "trivy image zakariahmimssa/axa_sinistre:${IMAGETAG} > trivy.txt"
+    }
+}
 
         stage("Docker Scout Scan") {
             steps {
@@ -105,6 +106,16 @@ pipeline {
                 }
             }
         }
+
+        stage('Stage VIII: Smoke Test') {
+    steps {
+        echo "Smoke Test the Docker image"
+        sh "docker run -d --name smokerun -p 8080:8080 zakariahmimssa/axa_sinistre:${IMAGETAG}"
+        sh "sleep 30; curl -f http://localhost:8080/api/sinistres || (echo 'Health check failed'; exit 1)"
+        sh "docker rm --force smokerun"
+    }
+}
+
 
         stage("Déclenchement du Pipeline CD") {
             steps {
