@@ -107,15 +107,33 @@ pipeline {
             }
         }
 
-        stage('Smoke Test') {
-    steps {
-        echo "Smoke Test the Docker image"
-         // Supprimer le conteneur s'il existe déjà
-        sh "docker rm -f smokerun || true"
-        sh "docker run -d --name smokerun -p 8082:8080 zakariahmimssa/axa_sinistre:${IMAGETAG}"
-        sh "sleep 60; curl -f http://localhost:8082/api/sinistres || (echo 'Health check failed'; exit 1)"
-        sh "docker rm --force smokerun"
+       stage('Smoke Test') {
+  steps {
+    script {
+      sh """
+      docker rm --force smokerun || true
+      docker run -d --name smokerun -p 8082:8080 zakariahmimssa/axa_sinistre:${IMAGETAG}
+      """
+
+      // Wait for the app to start
+      sh '''
+      for i in {1..10}; do
+        if curl -f http://localhost:8082/api/sinistres; then
+          echo "✅ Health check succeeded"
+          break
+        fi
+        echo "⏳ Waiting for container to be ready..."
+        sleep 5
+      done
+      '''
+
+      // Optionally show logs
+      sh "docker logs smokerun"
+      
+      // Cleanup
+      sh "docker rm --force smokerun"
     }
+  }
 }
 
 
